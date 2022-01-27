@@ -1,5 +1,6 @@
 export class CreateRecipeDto {
   title: string;
+  category: string;
   recipeImageUrl: string;
   ingredients: string[];
   instructions: string;
