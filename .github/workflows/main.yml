@@ -1,0 +1,38 @@
+name: Heroku deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  heroku:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+      - name: npm install
+        run: npm install
+      - name: npm run build
+        run: npm run build
+      - name: lint
+        run: npm run lint
+      - name: test
+        run: npm test
+      - uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          branch: 'main'
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          healthcheck: ${{ secrets.HEROKU_APP_URL }}
+          region: eu
+          delay: 5
+          usedocker: true
+        env:
+          HD_NODE_ENV: production
+          HD_MONGODB_CONNECTION_STRING: ${{ secrets.HD_MONGODB_CONNECTION_STRING }}
+          HD_SECRET: ${{ secrets.HD_SECRET }}
+          HD_MONGODB_DATABASE: ${{ secrets.HD_MONGODB_DATABASE }}
+          HD_MONGODB_PORT: ${{ secrets.HD_MONGODB_PORT }}
