@@ -1,0 +1,26 @@
+db.createUser({
+  user: `<USER>`,
+  pwd: `<PASSWORD>`,
+  roles: [
+    {
+      role: 'readWrite',
+      db: `backend-db`,
+    },
+  ],
+});
+
+// // seed mongo database
+//
+// db = db.getSiblingDB('backend-db');
+// db.createCollection('recipes');
+// db.recipes.insertMany([
+//  {
+//    name: 'paella',
+//  },
+//  {
+//    name: 'samosa',
+//  },
+//  {
+//    name: 'bravas',
+//  },
+//]);

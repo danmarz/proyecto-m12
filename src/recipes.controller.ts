@@ -9,7 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { CreateRecipeDto } from './create-recipe.dto';
-import { Recipe } from './recipe.entity';
+import { Recipe } from './entities/recipe.entity';
 import { UpdateRecipeDto } from './update-recipe.dto';
 
 @Controller('/recipes')
