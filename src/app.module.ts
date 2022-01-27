@@ -3,8 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RecipesController } from './recipes.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module';
+import { RecipesModule } from './recipes/recipes.module';
 
 @Module({
   imports: [
@@ -19,8 +20,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         ...configService.get('database'),
       }),
     }),
+    UsersModule,
+    RecipesModule,
   ],
-  controllers: [AppController, RecipesController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
