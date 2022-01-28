@@ -1,11 +1,15 @@
+import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
+
+@Entity('recipes')
 export class Recipe {
-  id: number;
-  title: string;
-  category: string;
-  recipeImageUrl: string;
-  ingredients: string[];
-  instructions: string;
-  prepTime: number;
-  cookTime: number;
-  totalTime: number;
+  @ObjectIdColumn() _id: ObjectID;
+  @Column() uid: number;
+  @Column({ unique: true }) title: string;
+  @Column() category: string;
+  @Column() recipeImageUrl: string;
+  @Column({ default: [] }) ingredients: string[];
+  @Column() instructions: string;
+  @Column() prepTime: number;
+  @Column() cookTime: number;
+  @Column() totalTime: number;
 }

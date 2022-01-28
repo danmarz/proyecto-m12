@@ -1,4 +1,5 @@
 export class CreateRecipeDto {
+  uid: number;
   title: string;
   category: string;
   recipeImageUrl: string;
