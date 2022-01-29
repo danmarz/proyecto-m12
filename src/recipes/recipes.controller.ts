@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   HttpCode,
+  ConflictException,
 } from '@nestjs/common';
 import { Recipe } from './entities/recipe.entity';
 import { RecipesService } from './recipes.service';
@@ -25,7 +26,15 @@ export class RecipesController {
 
   @Post()
   async create(@Body() createRecipeDto: CreateRecipeDto) {
-    return await this.repository.save({ ...createRecipeDto });
+    try {
+      return await this.repository.save({ ...createRecipeDto });
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ConflictException(
+          `recipe named «${createRecipeDto.title}» already exists`,
+        );
+      }
+    }
   }
 
   @Get()
@@ -44,10 +53,18 @@ export class RecipesController {
     @Body() updateRecipeDto: UpdateRecipeDto,
   ) {
     const recipe = await this.repository.findOne(id);
-    return await this.repository.save({
-      ...recipe,
-      ...updateRecipeDto,
-    });
+    try {
+      return await this.repository.save({
+        ...recipe,
+        ...updateRecipeDto,
+      });
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ConflictException(
+          `recipe named «${updateRecipeDto.title}» already exists`,
+        );
+      }
+    }
   }
 
   @Delete(':id')

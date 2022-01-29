@@ -1,4 +1,7 @@
 <p align="center">
+    <h1>RecetApp - Proyecto M12 DAW</h1>
+    <h3>La app de :tada:🎉 recetas!</h3>
+    <br/>
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
 </p>
 
@@ -6,7 +9,6 @@
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
   <p align="center">
-    <h1>Proyecto M12 DAW - AppRecetas</h1>
     A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
     <p align="center">
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
