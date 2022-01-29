@@ -15,7 +15,8 @@ import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+@ApiTags('recipes')
 @Controller('recipes')
 export class RecipesController {
   constructor(

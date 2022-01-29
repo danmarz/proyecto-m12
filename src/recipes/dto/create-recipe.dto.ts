@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsEnum,
@@ -12,38 +13,46 @@ import {
 import { RecipeCategories } from '../enums/recipe-categories.enum';
 
 export class CreateRecipeDto {
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   readonly title: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsEnum(RecipeCategories)
   readonly category: string;
 
+  @ApiProperty()
   @IsOptional()
   @IsUrl()
   readonly recipe_image_url: string;
 
+  @ApiProperty()
   @IsOptional()
   @IsArray()
   readonly ingredients: string[];
 
+  @ApiProperty()
   @IsOptional()
   @IsString()
   readonly instructions: string;
 
+  @ApiProperty()
   @IsOptional()
   @IsNumber()
   @IsPositive()
   @Max(2880)
   readonly preparation_time: number;
 
+  @ApiProperty()
   @IsOptional()
   @IsNumber()
   @IsPositive()
   @Max(2880)
   readonly cook_time: number;
 
+  @ApiProperty()
   @IsOptional()
   @IsNumber()
   @IsPositive()
