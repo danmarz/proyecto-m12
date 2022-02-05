@@ -1,26 +1,73 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
+import { Recipe } from './entities/recipe.entity';
 
 @Injectable()
 export class RecipesService {
-  create(createRecipeDto: CreateRecipeDto) {
-    return 'This action adds a new recipe';
+  constructor(
+    @InjectRepository(Recipe)
+    private readonly recipeRepository: Repository<Recipe>,
+  ) {}
+
+  async create(createRecipeDto: CreateRecipeDto) {
+    try {
+      return await this.recipeRepository.save(createRecipeDto);
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ConflictException(
+          `recipe named «${createRecipeDto.title}» already exists`,
+        );
+      }
+    }
   }
 
-  findAll() {
-    return `This action returns all recipes`;
+  async findAll() {
+    return await this.recipeRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} recipe`;
+  async findOne(id: string) {
+    const recipe = await this.recipeRepository.findOne(id);
+
+    if (!recipe) {
+      throw new NotFoundException(`recipe id «${id}» does not exist`);
+    }
+
+    return recipe;
   }
 
-  update(id: number, updateRecipeDto: UpdateRecipeDto) {
-    return `This action updates a #${id} recipe`;
+  async update(id: string, updateRecipeDto: UpdateRecipeDto) {
+    const recipe = await this.recipeRepository.findOne(id);
+
+    if (!recipe) {
+      throw new NotFoundException(`recipe id «${id}» does not exist`);
+    }
+
+    try {
+      return await this.recipeRepository.save({
+        ...recipe,
+        ...updateRecipeDto,
+      });
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ConflictException(`recipe «${recipe.title}» already exists`);
+      }
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} recipe`;
+  async remove(id: string) {
+    const recipe = await this.recipeRepository.findOne(id);
+
+    if (!recipe) {
+      throw new NotFoundException(`recipe id «${id}» does not exist`);
+    }
+
+    await this.recipeRepository.remove(recipe);
   }
 }

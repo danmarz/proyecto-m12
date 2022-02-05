@@ -7,45 +7,33 @@ import {
   Param,
   Delete,
   HttpCode,
-  ConflictException,
+  Logger,
 } from '@nestjs/common';
-import { Recipe } from './entities/recipe.entity';
 import { RecipesService } from './recipes.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+
 @ApiTags('recipes')
 @Controller('recipes')
 export class RecipesController {
-  constructor(
-    @InjectRepository(Recipe)
-    private readonly repository: Repository<Recipe>,
-    private readonly recipesService: RecipesService,
-  ) {}
+  private readonly logger = new Logger(RecipesController.name);
+
+  constructor(private readonly recipesService: RecipesService) {}
 
   @Post()
   async create(@Body() createRecipeDto: CreateRecipeDto) {
-    try {
-      return await this.repository.save({ ...createRecipeDto });
-    } catch (error) {
-      if (error.code === 11000) {
-        throw new ConflictException(
-          `recipe named «${createRecipeDto.title}» already exists`,
-        );
-      }
-    }
+    return await this.recipesService.create(createRecipeDto);
   }
 
   @Get()
   async findAll() {
-    return await this.repository.find();
+    return await this.recipesService.findAll();
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return await this.repository.findOne(id);
+    return await this.recipesService.findOne(id);
   }
 
   @Patch(':id')
@@ -53,25 +41,12 @@ export class RecipesController {
     @Param('id') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
   ) {
-    const recipe = await this.repository.findOne(id);
-    try {
-      return await this.repository.save({
-        ...recipe,
-        ...updateRecipeDto,
-      });
-    } catch (error) {
-      if (error.code === 11000) {
-        throw new ConflictException(
-          `recipe named «${updateRecipeDto.title}» already exists`,
-        );
-      }
-    }
+    return await this.recipesService.update(id, updateRecipeDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
   async remove(@Param('id') id: string) {
-    const recipe = await this.repository.findOne(id);
-    await this.repository.remove(recipe);
+    return await this.recipesService.remove(id);
   }
 }

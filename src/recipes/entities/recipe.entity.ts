@@ -1,11 +1,15 @@
 import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
+import { RecipeCategories } from '../enums/recipe-categories.enum';
 
 @Entity('recipes')
 export class Recipe {
   @ObjectIdColumn() _id: ObjectID;
-  @Column() uuid: string;
-  @Column({ unique: true }) title: string;
-  @Column() category: string;
+  @Column({ unique: true }) id: string;
+  @Column() title: string;
+  @Column('enum', {
+    enum: RecipeCategories,
+  })
+  category: RecipeCategories;
   @Column() recipe_image_url: string;
   @Column({ default: [] }) ingredients: string[];
   @Column() instructions: string;
