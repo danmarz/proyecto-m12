@@ -51,11 +51,4 @@ export class CreateRecipeDto {
   @IsPositive()
   @Max(2880)
   readonly cook_time: number;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsNumber()
-  @IsPositive()
-  @Max(2880)
-  readonly total_time: number;
 }

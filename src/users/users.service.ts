@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from '../auth/auth.service';
@@ -10,6 +11,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -19,12 +21,6 @@ export class UsersService {
     private readonly authService: AuthService,
   ) {}
   async create(createUserDto: CreateUserDto) {
-    const user = new User();
-
-    if (createUserDto.password !== createUserDto.retyped_password) {
-      throw new BadRequestException(['Passwords are not identical']);
-    }
-
     const existingUser = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
     });
@@ -33,14 +29,16 @@ export class UsersService {
       throw new BadRequestException(['Email already exists']);
     }
 
-    user.email = createUserDto.email;
-    user.id = Math.floor(Math.random() * 1000) + '';
+    const user = new User();
+    user.id = uuidv4();
+    Object.assign(user, createUserDto);
     user.password = await this.authService.hashPassword(createUserDto.password);
 
-    return {
-      ...(await this.usersRepository.save(user)),
+    await this.usersRepository.save(user);
+    return new User({
+      ...user,
       token: this.authService.getTokenForUser(user),
-    };
+    });
   }
 
   async findAll() {
@@ -48,7 +46,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({ where: { id } });
 
     if (!user) {
       throw new NotFoundException(`user id «${id}» does not exist`);
@@ -57,18 +55,27 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.usersRepository.findOne(id);
+  async update(currentUser: User, id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.usersRepository.findOne({ where: { id } });
 
     if (!user) {
       throw new NotFoundException(`user id «${id}» does not exist`);
     }
 
+    if (user.id !== currentUser.id) {
+      throw new UnauthorizedException(
+        `not authorized to update user id «${id}»`,
+      );
+    }
+
+    Object.assign(user, updateUserDto);
+
+    user.password = updateUserDto.password
+      ? await this.authService.hashPassword(updateUserDto.password)
+      : user.password;
+
     try {
-      return await this.usersRepository.save({
-        ...user,
-        ...updateUserDto,
-      });
+      return await this.usersRepository.save(user);
     } catch (error) {
       if (error.code === 11000) {
         throw new ConflictException(`email «${user.email}» already exists`);
@@ -76,11 +83,17 @@ export class UsersService {
     }
   }
 
-  async remove(id: string) {
-    const user = await this.usersRepository.findOne(id);
+  async remove(currentUser: User, id: string) {
+    const user = await this.usersRepository.findOne({ where: { id } });
 
     if (!user) {
       throw new NotFoundException(`user id «${id}» does not exist`);
+    }
+
+    if (user.id !== currentUser.id) {
+      throw new UnauthorizedException(
+        `not authorized to delete user id «${id}»`,
+      );
     }
 
     await this.usersRepository.remove(user);

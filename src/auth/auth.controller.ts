@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Post,
+  SerializeOptions,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from '../users/entities/user.entity';
@@ -8,6 +17,9 @@ import { LoginUserDto } from './dto/login-user.dto';
 
 @ApiTags('auth')
 @Controller('auth')
+@SerializeOptions({
+  strategy: 'excludeAll',
+})
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -23,6 +35,7 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @Get('profile')
   @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(ClassSerializerInterceptor)
   async getProfile(@CurrentUser() user: User) {
     return user;
   }
