@@ -16,7 +16,15 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { User } from './entities/user.entity';
@@ -32,11 +40,31 @@ export class UsersController {
 
   constructor(private readonly usersService: UsersService) {}
 
+  /**
+   * Register a new user
+   * @return {User}
+   * @memberof UsersController
+   */
+  @ApiCreatedResponse({
+    type: User,
+    description: 'Creates a user in the database',
+  })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.create(createUserDto);
   }
 
+  /**
+   * Get all users
+   * @return {[User]}
+   * @memberof UsersController
+   */
+  @ApiOkResponse({
+    type: User,
+    isArray: true,
+    description: 'Returns all existing users or an empty array',
+  })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   @Get()
@@ -44,6 +72,18 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
+  /**
+   * Get a single user by Id
+   * @param {string} id
+   * @return {User}
+   * @memberof UsersController
+   */
+  @ApiNotFoundResponse({ description: 'User was not found in the database' })
+  @ApiOkResponse({
+    type: User,
+    isArray: false,
+    description: 'Returns a single user',
+  })
   @ApiBearerAuth('access-token')
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
@@ -51,6 +91,19 @@ export class UsersController {
     return await this.usersService.findOne(id);
   }
 
+  /**
+   * Updates information of a single user by Id
+   * @param {string} id
+   * @param {UpdateUserDto} updateUserDto
+   * @return {User}
+   * @memberof UsersController
+   */
+  @ApiNotFoundResponse({ description: 'User was not found in the database' })
+  @ApiOkResponse({
+    type: User,
+    isArray: false,
+    description: 'Updates and returns a single User',
+  })
   @ApiBearerAuth('access-token')
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
@@ -62,6 +115,17 @@ export class UsersController {
     return await this.usersService.update(currentUser, id, updateUserDto);
   }
 
+  /**
+   * Deletes a single user by Id
+   * @param {string} id
+   * @memberof UsersController
+   */
+  @ApiNotFoundResponse({ description: 'User was not found in the database' })
+  @ApiResponse({
+    status: 204,
+    isArray: false,
+    description: 'Deletes a single User',
+  })
   @ApiBearerAuth('access-token')
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))

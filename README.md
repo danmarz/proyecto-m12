@@ -1,7 +1,8 @@
-<p align="center">
     <h1>RecetApp - Proyecto M12 DAW</h1>
-    <h3>La app de :tada:🎉 recetas!</h3>
     <br/>
+    <h3>Hecho con NestJs y con ❤
+
+<p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
 </p>
 

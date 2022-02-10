@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 
@@ -11,23 +12,30 @@ export class User {
   _id: ObjectID;
 
   @Expose()
+  @ApiProperty()
   @Column()
   id: string;
 
   @Expose()
+  @ApiProperty()
   @Column({ unique: true })
   email: string;
 
   @Expose()
+  @ApiProperty()
   @Column()
   first_name: string;
 
   @Expose()
+  @ApiProperty()
   @Column()
   last_name: string;
 
-  @Column() password: string;
+  @ApiProperty()
+  @Column()
+  password: string;
 
   @Expose()
+  @ApiProperty()
   token: string;
 }

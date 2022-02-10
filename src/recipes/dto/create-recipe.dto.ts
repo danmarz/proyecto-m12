@@ -18,7 +18,7 @@ export class CreateRecipeDto {
   @IsString()
   readonly title: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: RecipeCategories })
   @IsNotEmpty()
   @IsEnum(RecipeCategories)
   readonly category: RecipeCategories;
