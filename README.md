@@ -1,9 +1,11 @@
-    <h1>RecetApp - Proyecto M12 DAW</h1>
-    <br/>
-    <h3>Hecho con NestJs y con ❤
+<h1>RecetApp - Proyecto M12 DAW</h1>
+<h4>Hecho con ❤ y</h4>
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
+</p>
+<p align="right">
+    por <a href="https://twitter.com/dan_marius">@dan_marius</a>
 </p>
 
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456

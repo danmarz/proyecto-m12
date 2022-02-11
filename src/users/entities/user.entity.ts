@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 
@@ -7,7 +7,7 @@ export class User {
   constructor(partial?: Partial<User>) {
     Object.assign(this, partial);
   }
-
+  @ApiHideProperty()
   @ObjectIdColumn()
   _id: ObjectID;
 

@@ -47,7 +47,7 @@ export class UsersController {
    */
   @ApiCreatedResponse({
     type: User,
-    description: 'Creates a user in the database',
+    description: 'User created successfully',
   })
   @ApiBadRequestResponse({ description: 'Bad request' })
   @Post()
@@ -85,8 +85,8 @@ export class UsersController {
     description: 'Returns a single user',
   })
   @ApiBearerAuth('access-token')
-  @Get(':id')
   @UseGuards(AuthGuard('jwt'))
+  @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.usersService.findOne(id);
   }
@@ -105,8 +105,8 @@ export class UsersController {
     description: 'Updates and returns a single User',
   })
   @ApiBearerAuth('access-token')
-  @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
+  @Patch(':id')
   async update(
     @CurrentUser() currentUser: User,
     @Param('id') id: string,
@@ -123,13 +123,12 @@ export class UsersController {
   @ApiNotFoundResponse({ description: 'User was not found in the database' })
   @ApiResponse({
     status: 204,
-    isArray: false,
-    description: 'Deletes a single User',
+    description: 'No Content: succesfully deleted a User',
   })
   @ApiBearerAuth('access-token')
-  @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(204)
+  @Delete(':id')
   async remove(@CurrentUser() currentUser: User, @Param('id') id: string) {
     return await this.usersService.remove(currentUser, id);
   }

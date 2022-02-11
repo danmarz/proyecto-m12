@@ -43,7 +43,7 @@ export class RecipesService {
   }
 
   async findOne(id: string) {
-    const recipe = await this.recipeRepository.findOne(id);
+    const recipe = await this.recipeRepository.findOne({ where: { id } });
 
     if (!recipe) {
       throw new NotFoundException(`recipe id «${id}» does not exist`);
@@ -53,17 +53,22 @@ export class RecipesService {
   }
 
   async update(id: string, updateRecipeDto: UpdateRecipeDto) {
-    const recipe = await this.recipeRepository.findOne(id);
+    const recipe = await this.recipeRepository.findOne({ where: { id } });
 
     if (!recipe) {
       throw new NotFoundException(`recipe id «${id}» does not exist`);
     }
 
+    const updatedRecipe = new Recipe({
+      ...recipe,
+      ...updateRecipeDto,
+    });
+
+    updatedRecipe.total_time =
+      updatedRecipe.preparation_time + updatedRecipe.cook_time ?? -1;
+
     try {
-      return await this.recipeRepository.save({
-        ...recipe,
-        ...updateRecipeDto,
-      });
+      return await this.recipeRepository.save(updatedRecipe);
     } catch (error) {
       if (error.code === 11000) {
         throw new ConflictException(`recipe «${recipe.title}» already exists`);
@@ -72,7 +77,7 @@ export class RecipesService {
   }
 
   async remove(id: string) {
-    const recipe = await this.recipeRepository.findOne(id);
+    const recipe = await this.recipeRepository.findOne({ where: { id } });
 
     if (!recipe) {
       throw new NotFoundException(`recipe id «${id}» does not exist`);
