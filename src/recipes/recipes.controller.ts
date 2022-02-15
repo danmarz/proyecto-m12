@@ -29,6 +29,8 @@ import {
 import { FetchRecipeDto } from './dto/fetch-recipe.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Recipe } from './entities/recipe.entity';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('recipes')
 @Controller('recipes')
@@ -57,8 +59,11 @@ export class RecipesController {
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() createRecipeDto: CreateRecipeDto) {
-    return await this.recipesService.create(createRecipeDto);
+  async create(
+    @CurrentUser() user: User,
+    @Body() createRecipeDto: CreateRecipeDto,
+  ) {
+    return await this.recipesService.create(createRecipeDto, user);
   }
 
   /**

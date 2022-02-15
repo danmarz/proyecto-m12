@@ -9,15 +9,19 @@ import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { Recipe } from './entities/recipe.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { UsersRecipesService } from '../users-recipes/users-recipes.service';
+import { User } from '../users/entities/user.entity';
+import { CreateUsersRecipeDto } from '../users-recipes/dto/create-users-recipe.dto';
 
 @Injectable()
 export class RecipesService {
   constructor(
     @InjectRepository(Recipe)
     private readonly recipeRepository: Repository<Recipe>,
+    private readonly userRecipesService: UsersRecipesService,
   ) {}
 
-  async create(createRecipeDto: CreateRecipeDto) {
+  async create(createRecipeDto: CreateRecipeDto, user: User) {
     const recipe = new Recipe();
 
     recipe.id = uuidv4();
@@ -27,7 +31,17 @@ export class RecipesService {
     try {
       Object.assign(recipe, createRecipeDto);
 
-      return await this.recipeRepository.save(recipe);
+      const savedRecipe = await this.recipeRepository.save(recipe);
+
+      if (savedRecipe) {
+        this.userRecipesService.create(
+          {} as CreateUsersRecipeDto,
+          user,
+          savedRecipe,
+        );
+
+        return savedRecipe;
+      }
     } catch (error) {
       console.log(error);
       if (error.code === 11000) {

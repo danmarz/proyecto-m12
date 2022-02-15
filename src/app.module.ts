@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { RecipesModule } from './recipes/recipes.module';
 import { APP_PIPE } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
+import { UsersRecipesModule } from './users-recipes/users-recipes.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     RecipesModule,
     AuthModule,
+    UsersRecipesModule,
   ],
   controllers: [AppController],
   providers: [
