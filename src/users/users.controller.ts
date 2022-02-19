@@ -6,16 +6,15 @@ import {
   Patch,
   Param,
   Delete,
-  Logger,
   HttpCode,
-  SerializeOptions,
-  UseInterceptors,
-  ClassSerializerInterceptor,
+  Logger,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FetchUserDto } from './dto/fetch-user.dto';
+import { MongooseClassSerializerInterceptor } from '../interceptors/mongooseClassSerializer.interceptor';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -26,15 +25,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from './schemas/user.schema';
 import { CurrentUser } from '../auth/current-user.decorator';
-import { User } from './entities/user.entity';
 
 @ApiTags('users')
 @Controller('users')
-@SerializeOptions({
-  strategy: 'excludeAll',
-})
-@UseInterceptors(ClassSerializerInterceptor)
+@MongooseClassSerializerInterceptor(FetchUserDto)
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
 

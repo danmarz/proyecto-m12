@@ -1,13 +1,10 @@
 import {
-  Body,
-  ClassSerializerInterceptor,
   Controller,
   Get,
-  HttpCode,
   Post,
-  SerializeOptions,
+  Body,
+  HttpCode,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -17,8 +14,9 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { MongooseClassSerializerInterceptor } from '../interceptors/mongooseClassSerializer.interceptor';
 import { FetchUserDto } from '../users/dto/fetch-user.dto';
-import { User } from '../users/entities/user.entity';
+import { User } from '../users/schemas/user.schema';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './current-user.decorator';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -26,9 +24,6 @@ import { TokenUserDto } from './dto/token-user.dto';
 
 @ApiTags('auth')
 @Controller('auth')
-@SerializeOptions({
-  strategy: 'excludeAll',
-})
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -69,7 +64,7 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @Get('profile')
   @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(ClassSerializerInterceptor)
+  @MongooseClassSerializerInterceptor(FetchUserDto)
   async getProfile(@CurrentUser() user: User) {
     return user;
   }

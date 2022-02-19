@@ -1,27 +1,20 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Strategy } from 'passport-local';
-import { User } from '../users/entities/user.entity';
-import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { UserRepository } from '../users/users.repository';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(LocalStrategy.name);
 
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {
+  constructor(private readonly userRepository: UserRepository) {
     //call parent constructor (PassportStrategy(Strategy))
     super({ usernameField: 'email' });
   }
 
   public async validate(email: string, password: string): Promise<any> {
-    const user = await this.userRepository.findOne({
-      where: { email },
-    });
+    const user = await this.userRepository.findOneByEmail(email);
 
     if (!user) {
       this.logger.debug(`User ${email} not found!`);

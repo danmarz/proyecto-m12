@@ -5,25 +5,24 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { AuthService } from '../auth/auth.service';
-import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { User } from './schemas/user.schema';
+import { UserRepository } from './users.repository';
+import { AuthService } from '../auth/auth.service';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
+    private readonly userRepository: UserRepository,
     private readonly authService: AuthService,
   ) {}
+
   async create(createUserDto: CreateUserDto) {
-    const existingUser = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
-    });
+    const existingUser = await this.userRepository.findOneByEmail(
+      createUserDto.email,
+    );
 
     if (existingUser) {
       throw new BadRequestException(['Email already exists']);
@@ -34,7 +33,7 @@ export class UsersService {
     Object.assign(user, createUserDto);
     user.password = await this.authService.hashPassword(createUserDto.password);
 
-    await this.usersRepository.save(user);
+    await this.userRepository.create(user);
     return new User({
       ...user,
       token: this.authService.getTokenForUser(user),
@@ -42,11 +41,11 @@ export class UsersService {
   }
 
   async findAll() {
-    return await this.usersRepository.find();
+    return await this.userRepository.findAll();
   }
 
   async findOne(id: string) {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOneById(id);
 
     if (!user) {
       throw new NotFoundException(`user id «${id}» does not exist`);
@@ -56,7 +55,7 @@ export class UsersService {
   }
 
   async update(currentUser: User, id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOneById(id);
 
     if (!user) {
       throw new NotFoundException(`user id «${id}» does not exist`);
@@ -75,7 +74,7 @@ export class UsersService {
       : user.password;
 
     try {
-      return await this.usersRepository.save(user);
+      return await this.userRepository.update(user);
     } catch (error) {
       if (error.code === 11000) {
         throw new ConflictException(`email «${user.email}» already exists`);
@@ -84,7 +83,7 @@ export class UsersService {
   }
 
   async remove(currentUser: User, id: string) {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOneById(id);
 
     if (!user) {
       throw new NotFoundException(`user id «${id}» does not exist`);
@@ -96,6 +95,6 @@ export class UsersService {
       );
     }
 
-    await this.usersRepository.remove(user);
+    await this.userRepository.remove(id);
   }
 }

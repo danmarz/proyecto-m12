@@ -5,6 +5,10 @@
   "author": "Dan Marius Dumitrescu",
   "private": true,
   "license": "MIT",
+  "engines": {
+    "npm": ">=8.3.1",
+    "node": "16.14.0"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -26,15 +30,15 @@
     "@nestjs/core": "^8.0.0",
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/mapped-types": "^1.0.1",
+    "@nestjs/mongoose": "^9.0.2",
     "@nestjs/passport": "^8.1.0",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/swagger": "^5.2.0",
-    "@nestjs/typeorm": "^8.0.3",
     "@types/uuid": "^8.3.4",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
-    "mongodb": "^3.7.3",
+    "mongoose": "^6.2.2",
     "passport": "^0.5.2",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
@@ -42,7 +46,6 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.3.0",
-    "typeorm": "^0.2.41",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

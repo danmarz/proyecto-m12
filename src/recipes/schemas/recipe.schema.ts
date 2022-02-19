@@ -1,64 +1,53 @@
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
-import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
+import { Document } from 'mongoose';
 import { RecipeCategories } from '../enums/recipe-categories.enum';
 
-@Entity('recipes')
+export type RecipeDocument = Recipe & Document;
+
+@Schema()
 export class Recipe {
   constructor(partial?: Partial<Recipe>) {
     Object.assign(this, partial);
   }
 
-  @ApiHideProperty()
-  @ObjectIdColumn()
-  _id: ObjectID;
-
   @ApiProperty()
-  @Expose()
-  @Column({ unique: true })
+  @Prop()
   id: string;
 
   @ApiProperty()
-  @Expose()
-  @Column()
+  @Prop({ required: true })
   title: string;
 
   @ApiProperty({
     enum: RecipeCategories,
   })
-  @Expose()
-  @Column('enum', {
-    enum: RecipeCategories,
-  })
+  @Prop()
   category: RecipeCategories;
 
   @ApiProperty()
-  @Expose()
-  @Column({ default: [] })
+  @Prop([String])
   ingredients: string[];
 
   @ApiProperty()
-  @Expose()
-  @Column()
+  @Prop()
   recipe_image_url: string;
 
   @ApiProperty()
-  @Expose()
-  @Column()
+  @Prop()
   instructions: string;
 
   @ApiProperty()
-  @Expose()
-  @Column()
+  @Prop()
   preparation_time: number;
 
   @ApiProperty()
-  @Expose()
-  @Column()
+  @Prop()
   cook_time: number;
 
   @ApiProperty()
-  @Expose()
-  @Column()
+  @Prop()
   total_time: number;
 }
+
+export const RecipeSchema = SchemaFactory.createForClass(Recipe);

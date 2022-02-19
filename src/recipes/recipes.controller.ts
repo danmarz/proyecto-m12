@@ -8,9 +8,6 @@ import {
   Delete,
   HttpCode,
   Logger,
-  SerializeOptions,
-  UseInterceptors,
-  ClassSerializerInterceptor,
   UseGuards,
 } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
@@ -27,17 +24,13 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { FetchRecipeDto } from './dto/fetch-recipe.dto';
+import { Recipe } from './schemas/recipe.schema';
+import { MongooseClassSerializerInterceptor } from '../interceptors/mongooseClassSerializer.interceptor';
 import { AuthGuard } from '@nestjs/passport';
-import { Recipe } from './entities/recipe.entity';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { User } from '../users/entities/user.entity';
 
 @ApiTags('recipes')
 @Controller('recipes')
-@SerializeOptions({
-  strategy: 'excludeAll',
-})
-@UseInterceptors(ClassSerializerInterceptor)
+@MongooseClassSerializerInterceptor(FetchRecipeDto)
 export class RecipesController {
   private readonly logger = new Logger(RecipesController.name);
 
@@ -59,11 +52,8 @@ export class RecipesController {
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(
-    @CurrentUser() user: User,
-    @Body() createRecipeDto: CreateRecipeDto,
-  ) {
-    return await this.recipesService.create(createRecipeDto, user);
+  async create(@Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
+    return await this.recipesService.create(createRecipeDto);
   }
 
   /**
@@ -77,7 +67,7 @@ export class RecipesController {
     description: 'Returns all existing recipes or an empty array',
   })
   @Get()
-  async findAll() {
+  async findAll(): Promise<Recipe[]> {
     return await this.recipesService.findAll();
   }
 

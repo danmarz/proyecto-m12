@@ -1,102 +1,55 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
-import { Recipe } from './entities/recipe.entity';
+import { Recipe } from './schemas/recipe.schema';
 import { v4 as uuidv4 } from 'uuid';
-import { UsersRecipesService } from '../users-recipes/users-recipes.service';
-import { User } from '../users/entities/user.entity';
-import { CreateUsersRecipeDto } from '../users-recipes/dto/create-users-recipe.dto';
+import { RecipeRepository } from './recipes.repository';
 
 @Injectable()
 export class RecipesService {
-  constructor(
-    @InjectRepository(Recipe)
-    private readonly recipeRepository: Repository<Recipe>,
-    private readonly userRecipesService: UsersRecipesService,
-  ) {}
+  constructor(private recipeRepository: RecipeRepository) {}
 
-  async create(createRecipeDto: CreateRecipeDto, user: User) {
-    const recipe = new Recipe();
+  async create(createRecipeDto: CreateRecipeDto) {
+    const newRecipe: Recipe = new Recipe(createRecipeDto);
+    newRecipe.id = uuidv4();
+    newRecipe.preparation_time = newRecipe.preparation_time ?? 0;
+    newRecipe.cook_time = newRecipe.cook_time ?? 0;
+    newRecipe.total_time = newRecipe.preparation_time + newRecipe.cook_time;
 
-    recipe.id = uuidv4();
-    recipe.total_time =
-      createRecipeDto.preparation_time + createRecipeDto.cook_time ?? -1;
-
-    try {
-      Object.assign(recipe, createRecipeDto);
-
-      const savedRecipe = await this.recipeRepository.save(recipe);
-
-      if (savedRecipe) {
-        this.userRecipesService.create(
-          {} as CreateUsersRecipeDto,
-          user,
-          savedRecipe,
-        );
-
-        return savedRecipe;
-      }
-    } catch (error) {
-      console.log(error);
-      if (error.code === 11000) {
-        throw new ConflictException(
-          `recipe named «${createRecipeDto.title}» already exists`,
-        );
-      }
-    }
+    return await this.recipeRepository.create(newRecipe);
   }
 
-  async findAll() {
-    return await this.recipeRepository.find();
+  async findAll(): Promise<Recipe[]> {
+    return await this.recipeRepository.findAll();
   }
 
-  async findOne(id: string) {
-    const recipe = await this.recipeRepository.findOne({ where: { id } });
-
+  async findOne(id: string): Promise<Recipe> {
+    const recipe = await this.recipeRepository.findOne(id);
     if (!recipe) {
       throw new NotFoundException(`recipe id «${id}» does not exist`);
     }
-
     return recipe;
   }
 
-  async update(id: string, updateRecipeDto: UpdateRecipeDto) {
-    const recipe = await this.recipeRepository.findOne({ where: { id } });
+  async update(id: string, updateRecipeDto: UpdateRecipeDto): Promise<Recipe> {
+    const existingRecipe = await this.recipeRepository.findOne(id);
 
-    if (!recipe) {
+    if (!existingRecipe) {
       throw new NotFoundException(`recipe id «${id}» does not exist`);
     }
 
     const updatedRecipe = new Recipe({
-      ...recipe,
+      ...existingRecipe,
       ...updateRecipeDto,
     });
 
-    updatedRecipe.total_time =
-      updatedRecipe.preparation_time + updatedRecipe.cook_time ?? -1;
+    updateRecipeDto.total_time =
+      updatedRecipe.preparation_time + updatedRecipe.cook_time;
 
-    try {
-      return await this.recipeRepository.save(updatedRecipe);
-    } catch (error) {
-      if (error.code === 11000) {
-        throw new ConflictException(`recipe «${recipe.title}» already exists`);
-      }
-    }
+    return await this.recipeRepository.update(id, updateRecipeDto);
   }
 
   async remove(id: string) {
-    const recipe = await this.recipeRepository.findOne({ where: { id } });
-
-    if (!recipe) {
-      throw new NotFoundException(`recipe id «${id}» does not exist`);
-    }
-
-    await this.recipeRepository.remove(recipe);
+    await this.recipeRepository.remove(id);
   }
 }
