@@ -96,6 +96,25 @@ export class RecipesController {
   }
 
   /**
+   * Get notes and rating of a recipe
+   * @param {string} id
+   * @memberof RecipesController
+   */
+  @ApiNotFoundResponse({
+    description: 'RecipeId was not found in the database',
+  })
+  @ApiOkResponse({
+    isArray: false,
+    description: 'Get a recipe note/rating',
+  })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':recipeId/notes')
+  getNote(@CurrentUser() user: User, @Param('recipeId') recipeId: string) {
+    return this.userRecipeListService.getNote(recipeId, user);
+  }
+
+  /**
    * Add notes and rating to a recipe
    * @param {string} id
    * @memberof RecipesController

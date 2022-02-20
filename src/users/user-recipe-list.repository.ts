@@ -6,6 +6,7 @@ import {
   UserRecipeList,
   UserRecipeListDocument,
 } from './schemas/user-recipe-list.schema';
+import { User } from './schemas/user.schema';
 
 @Injectable()
 export class UserRecipeListRepository {
@@ -37,6 +38,17 @@ export class UserRecipeListRepository {
 
   async findOne(id: string): Promise<UserRecipeList> {
     return await this.userRecipeListModel.findById(id);
+  }
+
+  async getNote(recipeId: string, user: User): Promise<UserRecipeList> {
+    return await this.userRecipeListModel
+      .findOne({
+        recipe: recipeId,
+        user: user._id,
+      })
+      .populate('user')
+      .populate('recipe')
+      .exec();
   }
 
   async update(

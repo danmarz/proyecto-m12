@@ -44,6 +44,10 @@ export class UserRecipeListService {
     return await this.userRecipeListRepository.findAll();
   }
 
+  async getNote(recipeId: string, user: User) {
+    return await this.userRecipeListRepository.getNote(recipeId, user);
+  }
+
   async findRecipesForUser(currentUser: User, userId: string) {
     if (currentUser._id == userId) {
       return await this.userRecipeListRepository.findAllRecipesByUser(userId);

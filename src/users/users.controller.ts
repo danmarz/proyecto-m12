@@ -31,7 +31,6 @@ import { UserRecipeListService } from './user-recipe-list.service';
 
 @ApiTags('users')
 @Controller('users')
-// @MongooseClassSerializerInterceptor(FetchUserDto)
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
 
@@ -73,7 +72,7 @@ export class UsersController {
   }
 
   /**
-   * Get all the recipes that a user created
+   * Get all notes and recipes that a user created
    * @memberof UsersController
    */
   @ApiOkResponse({
