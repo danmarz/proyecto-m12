@@ -21,16 +21,16 @@ export class RecipeRepository {
   }
 
   async findOne(recipeId: string): Promise<Recipe> {
-    return await this.recipeModel.findOne({ id: recipeId });
+    return await this.recipeModel.findById(recipeId);
   }
 
   async update(recipeId: string, update: UpdateRecipeDto): Promise<Recipe> {
-    return await this.recipeModel.findOneAndUpdate({ id: recipeId }, update, {
+    return await this.recipeModel.findByIdAndUpdate(recipeId, update, {
       new: true,
     });
   }
 
   async remove(recipeId: string) {
-    await this.recipeModel.findOneAndRemove({ id: recipeId });
+    await this.recipeModel.findByIdAndRemove(recipeId);
   }
 }

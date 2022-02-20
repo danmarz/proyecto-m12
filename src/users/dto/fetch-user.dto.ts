@@ -4,7 +4,7 @@ import { Expose } from 'class-transformer';
 export class FetchUserDto {
   @ApiProperty()
   @Expose()
-  id: string;
+  _id: string;
 
   @ApiProperty()
   @Expose()
@@ -17,4 +17,8 @@ export class FetchUserDto {
   @ApiProperty()
   @Expose()
   last_name: string;
+
+  @ApiProperty()
+  @Expose()
+  token: string;
 }

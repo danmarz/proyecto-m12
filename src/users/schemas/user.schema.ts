@@ -12,7 +12,7 @@ export class User {
 
   @ApiProperty()
   @Prop()
-  id: string;
+  _id: string;
 
   @ApiProperty()
   @Prop({ required: true })
@@ -26,12 +26,9 @@ export class User {
   @Prop()
   last_name: string;
 
-  @ApiProperty()
-  @Prop({})
+  @Prop({ select: false })
   password: string;
 
-  @ApiProperty()
-  @Prop()
   token: string;
 }
 

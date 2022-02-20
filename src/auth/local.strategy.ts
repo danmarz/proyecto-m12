@@ -14,7 +14,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   public async validate(email: string, password: string): Promise<any> {
-    const user = await this.userRepository.findOneByEmail(email);
+    const user = await this.userRepository.getUserWithPassword(email);
 
     if (!user) {
       this.logger.debug(`User ${email} not found!`);

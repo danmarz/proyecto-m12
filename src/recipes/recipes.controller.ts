@@ -25,16 +25,23 @@ import {
 } from '@nestjs/swagger';
 import { FetchRecipeDto } from './dto/fetch-recipe.dto';
 import { Recipe } from './schemas/recipe.schema';
-import { MongooseClassSerializerInterceptor } from '../interceptors/mongooseClassSerializer.interceptor';
 import { AuthGuard } from '@nestjs/passport';
+import { UserRecipeListService } from '../users/user-recipe-list.service';
+import { CreateUserRecipeListDto } from '../users/dto/create-user-recipe-list.dto';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { User } from '../users/schemas/user.schema';
+import { UserRecipeList } from '../users/schemas/user-recipe-list.schema';
+import { UpdateUserRecipeListDto } from '../users/dto/update-user-recipe-list.dto';
 
 @ApiTags('recipes')
 @Controller('recipes')
-@MongooseClassSerializerInterceptor(FetchRecipeDto)
 export class RecipesController {
   private readonly logger = new Logger(RecipesController.name);
 
-  constructor(private readonly recipesService: RecipesService) {}
+  constructor(
+    private readonly recipesService: RecipesService,
+    private readonly userRecipeListService: UserRecipeListService,
+  ) {}
 
   /**
    * Register a new recipe
@@ -83,9 +90,84 @@ export class RecipesController {
     isArray: true,
     description: 'Returns a single recipe',
   })
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
+  @Get(':recipeId')
+  async findOne(@Param('recipeId') id: string) {
     return await this.recipesService.findOne(id);
+  }
+
+  /**
+   * Add notes and rating to a recipe
+   * @param {string} id
+   * @memberof RecipesController
+   */
+  @ApiNotFoundResponse({
+    description: 'RecipeId was not found in the database',
+  })
+  @ApiCreatedResponse({
+    isArray: true,
+    description: 'Adds a recipe note/rating',
+  })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':recipeId/notes')
+  addNote(
+    @Body() createUserRecipeListDto: CreateUserRecipeListDto,
+    @CurrentUser() user: User,
+    @Param('recipeId') recipeId: string,
+  ) {
+    return this.userRecipeListService.create(
+      recipeId,
+      user,
+      createUserRecipeListDto,
+    );
+  }
+
+  /**
+   * Modify recipe note and/or rating
+   * @param {string} recipeId
+   * @memberof RecipesController
+   */
+  @ApiNotFoundResponse({
+    description: 'RecipeId was not found in the database',
+  })
+  @ApiOkResponse({
+    type: UserRecipeList,
+    isArray: true,
+    description: 'Modifies a recipe note/rating',
+  })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  @Patch(':recipeId/notes')
+  modifyNote(
+    @Body() updateUserRecipeListDto: UpdateUserRecipeListDto,
+    @CurrentUser() user: User,
+    @Param('recipeId') recipeId: string,
+  ) {
+    return this.userRecipeListService.update(
+      recipeId,
+      user,
+      updateUserRecipeListDto,
+    );
+  }
+
+  /**
+   * Deletes recipe note
+   * @param {string} recipeId
+   * @memberof RecipesController
+   */
+  @ApiNotFoundResponse({
+    description: 'RecipeId was not found in the database',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'No content: Successfully deleted item.',
+  })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(204)
+  @Delete(':recipeId/notes')
+  deleteNote(@CurrentUser() user: User, @Param('recipeId') recipeId: string) {
+    return this.userRecipeListService.remove(recipeId, user);
   }
 
   /**
@@ -103,9 +185,9 @@ export class RecipesController {
   })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  @Patch(':id')
+  @Patch(':recipeId')
   async update(
-    @Param('id') id: string,
+    @Param('recipeId') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
   ) {
     return await this.recipesService.update(id, updateRecipeDto);
@@ -124,8 +206,8 @@ export class RecipesController {
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(204)
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
+  @Delete(':recipeId')
+  async remove(@Param('recipeId') id: string) {
     return await this.recipesService.remove(id);
   }
 }

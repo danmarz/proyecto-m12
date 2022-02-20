@@ -20,20 +20,24 @@ export class UserRepository {
   }
 
   async findOneById(userId: string): Promise<User> {
-    return await this.userModel.findOne({ id: userId });
+    return await this.userModel.findById(userId);
   }
 
   async findOneByEmail(email: string): Promise<User> {
     return await this.userModel.findOne({ email: email });
   }
 
+  async getUserWithPassword(email: string): Promise<User> {
+    return await this.userModel.findOne({ email: email }).select('+password');
+  }
+
   async update(user: User): Promise<User> {
-    return await this.userModel.findOneAndUpdate({ id: user.id }, user, {
+    return await this.userModel.findByIdAndUpdate(user._id, user, {
       new: true,
     });
   }
 
   async remove(userId: string) {
-    await this.userModel.findOneAndRemove({ id: userId });
+    await this.userModel.findByIdAndRemove(userId);
   }
 }

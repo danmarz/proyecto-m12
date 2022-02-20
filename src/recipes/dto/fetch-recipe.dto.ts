@@ -5,7 +5,7 @@ import { RecipeCategories } from '../enums/recipe-categories.enum';
 export class FetchRecipeDto {
   @ApiProperty()
   @Expose()
-  id: string;
+  _id: string;
 
   @ApiProperty()
   @Expose()

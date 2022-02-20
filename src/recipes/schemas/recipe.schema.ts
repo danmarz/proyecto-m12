@@ -13,7 +13,7 @@ export class Recipe {
 
   @ApiProperty()
   @Prop()
-  id: string;
+  _id: string;
 
   @ApiProperty()
   @Prop({ required: true })

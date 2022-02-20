@@ -11,7 +11,7 @@ export class RecipesService {
 
   async create(createRecipeDto: CreateRecipeDto) {
     const newRecipe: Recipe = new Recipe(createRecipeDto);
-    newRecipe.id = uuidv4();
+    newRecipe._id = uuidv4();
     newRecipe.preparation_time = newRecipe.preparation_time ?? 0;
     newRecipe.cook_time = newRecipe.cook_time ?? 0;
     newRecipe.total_time = newRecipe.preparation_time + newRecipe.cook_time;

@@ -29,11 +29,13 @@ export class UsersService {
     }
 
     const user = new User();
-    user.id = uuidv4();
+    user._id = uuidv4();
     Object.assign(user, createUserDto);
     user.password = await this.authService.hashPassword(createUserDto.password);
 
     await this.userRepository.create(user);
+    delete user.password;
+
     return new User({
       ...user,
       token: this.authService.getTokenForUser(user),
@@ -61,7 +63,7 @@ export class UsersService {
       throw new NotFoundException(`user id «${id}» does not exist`);
     }
 
-    if (user.id !== currentUser.id) {
+    if (user._id !== currentUser._id) {
       throw new UnauthorizedException(
         `not authorized to update user id «${id}»`,
       );
@@ -89,7 +91,7 @@ export class UsersService {
       throw new NotFoundException(`user id «${id}» does not exist`);
     }
 
-    if (user.id !== currentUser.id) {
+    if (user._id !== currentUser._id) {
       throw new UnauthorizedException(
         `not authorized to delete user id «${id}»`,
       );
